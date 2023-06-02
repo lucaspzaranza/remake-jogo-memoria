@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae0917cc1d00f8247b0040b2d535aef5, type: 3}
+  m_Name: RankingData
+  m_EditorClassIdentifier: 
+  _rankingRowsDataList:
+  - _number: 1
+    _name: Lucas Zaranza
+    _score: 999
+  - _number: 2
+    _name: 
+    _score: 0
+  - _number: 3
+    _name: 
+    _score: 0
+  - _number: 4
+    _name: 
+    _score: 0
+  - _number: 5
+    _name: 
+    _score: 0
+  - _number: 6
+    _name: 
+    _score: 0
+  - _number: 7
+    _name: 
+    _score: 0
+  - _number: 8
+    _name: 
+    _score: 0
+  - _number: 9
+    _name: 
+    _score: 0
+  - _number: 10
+    _name: 
+    _score: 0
+  - _number: 11
+    _name: 
+    _score: 0
+  - _number: 12
+    _name: 
+    _score: 0
+  - _number: 13
+    _name: 
+    _score: 0
+  - _number: 14
+    _name: 
+    _score: 0
+  - _number: 15
+    _name: 
+    _score: 0
+  - _number: 16
+    _name: 
+    _score: 0
+  - _number: 17
+    _name: 
+    _score: 0
+  - _number: 18
+    _name: 
+    _score: 0
+  - _number: 19
+    _name: 
+    _score: 0
+  - _number: 20
+    _name: 
+    _score: 0
