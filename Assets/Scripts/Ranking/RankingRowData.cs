@@ -24,4 +24,10 @@ public class RankingRowData
         get => _score;
         set => _score = value;
     }
+
+    public RankingRowData(string newName, int newScore)
+    {
+        _name = newName;
+        _score = newScore;
+    }
 }

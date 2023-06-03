@@ -14,62 +14,62 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _rankingRowsDataList:
   - _number: 1
-    _name: Lucas Zaranza
-    _score: 999
+    _name: Test
+    _score: 9869
   - _number: 2
-    _name: 
-    _score: 0
+    _name: Test
+    _score: 9740
   - _number: 3
-    _name: 
-    _score: 0
-  - _number: 4
-    _name: 
-    _score: 0
-  - _number: 5
-    _name: 
-    _score: 0
-  - _number: 6
-    _name: 
-    _score: 0
-  - _number: 7
-    _name: 
-    _score: 0
-  - _number: 8
-    _name: 
-    _score: 0
-  - _number: 9
-    _name: 
-    _score: 0
-  - _number: 10
-    _name: 
-    _score: 0
-  - _number: 11
-    _name: 
-    _score: 0
-  - _number: 12
-    _name: 
-    _score: 0
-  - _number: 13
-    _name: 
-    _score: 0
-  - _number: 14
-    _name: 
-    _score: 0
-  - _number: 15
-    _name: 
-    _score: 0
-  - _number: 16
-    _name: 
-    _score: 0
-  - _number: 17
-    _name: 
-    _score: 0
-  - _number: 18
-    _name: 
-    _score: 0
-  - _number: 19
-    _name: 
-    _score: 0
-  - _number: 20
-    _name: 
-    _score: 0
+    _name: Test
+    _score: 9684
+  - _number: 3
+    _name: Test
+    _score: 9684
+  - _number: 3
+    _name: Test
+    _score: 9684
+  - _number: 3
+    _name: Test
+    _score: 9684
+  - _number: 3
+    _name: Test
+    _score: 9684
+  - _number: 3
+    _name: Test
+    _score: 9684
+  - _number: 3
+    _name: Test
+    _score: 9684
+  - _number: 3
+    _name: Test
+    _score: 9684
+  - _number: 3
+    _name: Test
+    _score: 9684
+  - _number: 3
+    _name: Test
+    _score: 9684
+  - _number: 3
+    _name: Test
+    _score: 9684
+  - _number: 3
+    _name: Test
+    _score: 9684
+  - _number: 3
+    _name: Test
+    _score: 9684
+  - _number: 3
+    _name: Test
+    _score: 9684
+  - _number: 3
+    _name: Test
+    _score: 9684
+  - _number: 3
+    _name: Test
+    _score: 9684
+  - _number: 3
+    _name: Test
+    _score: 9684
+  - _number: 3
+    _name: Test
+    _score: 9684
