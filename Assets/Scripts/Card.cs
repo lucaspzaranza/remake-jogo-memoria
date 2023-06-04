@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -11,17 +12,25 @@ public class Card : MonoBehaviour
     /// </summary>
     private const float _valueToStopFlip = 270f;
 
+    public static Action<Card> OnCardFlipped;
+
     [SerializeField] private bool _activateFlip;
-    [SerializeField] private CardState _cardState;
     [SerializeField] private float _flipSpeed;
     [SerializeField] private float _rotationLimit;
     [SerializeField] private float _deadzone;
     [SerializeField] private Sprite _flippedSprite;
     [SerializeField] private Sprite _backSprite;
-    [SerializeField] private Image _cardImg;
     [SerializeField] private Button _buttonComp;
 
+    private bool _canFlip = true;
     private bool _changedSide;
+    private bool _cardMatched;
+
+    [SerializeField] private Image _cardImg;
+    public Image CardImage => _cardImg;
+
+    [SerializeField] private CardState _cardState;
+    public CardState CardState => _cardState;
 
     private void OnEnable()
     {
@@ -33,7 +42,10 @@ public class Card : MonoBehaviour
 
         _buttonComp.onClick.AddListener(() =>
         {
-            if(!_activateFlip)
+            if (!_canFlip)
+                return;
+
+            if(!_activateFlip && _cardState == CardState.Back)
                 _activateFlip = true;
         });
 
@@ -50,6 +62,11 @@ public class Card : MonoBehaviour
     public void ActivateFlip()
     {
         _buttonComp.onClick.Invoke();
+    }
+
+    public void ForceFlip()
+    {
+        _activateFlip = true;
     }
 
     private void FlipCard()
@@ -70,6 +87,7 @@ public class Card : MonoBehaviour
             _changedSide = false;
             _activateFlip = false;
             transform.rotation = Quaternion.identity;
+            OnCardFlipped?.Invoke(this);
         }
     }
 
@@ -93,5 +111,10 @@ public class Card : MonoBehaviour
     {
         _backSprite = back;
         _flippedSprite = flipped;
+    }
+
+    public void SetCanFlip(bool val)
+    {
+        _canFlip = val;
     }
 }
