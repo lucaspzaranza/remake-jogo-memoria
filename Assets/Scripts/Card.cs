@@ -87,7 +87,10 @@ public class Card : MonoBehaviour
             _changedSide = false;
             _activateFlip = false;
             transform.rotation = Quaternion.identity;
-            OnCardFlipped?.Invoke(this);
+
+            // TIME GREATER THAN ZERO
+            if(GameController.instance.TimeCounter > 0f)
+                OnCardFlipped?.Invoke(this);
         }
     }
 

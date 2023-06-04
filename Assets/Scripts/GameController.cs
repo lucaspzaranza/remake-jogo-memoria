@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Xml.Schema;
 using UnityEngine;
 
 public class GameController : MonoBehaviour
@@ -20,10 +21,11 @@ public class GameController : MonoBehaviour
 
     [Space]
     [Header("Game Rules")]
-    [SerializeField] private int _score;
+    [SerializeField] private int _pairPoints;
     [SerializeField] private int _matchScore;
     [SerializeField] private int _secondsScore;
     [SerializeField] private int _errorPenalty;
+    [Tooltip("The duration of the match in seconds.")]
     [SerializeField] private int _matchDuration;
     [SerializeField] private float _memorizeTime;
     [SerializeField] private float _timeToUnflip;
@@ -37,6 +39,32 @@ public class GameController : MonoBehaviour
     private int _time;
     private float _timeCounter;
 
+    public int PairPoints
+    {
+        get => _pairPoints;
+        set
+        {
+            _pairPoints = value;            
+            _UIController.SetScore(_pairPoints);
+            _pairCounter++;
+        }
+    }
+
+    public int NumberOfTries
+    {
+        get => _numOfTries;
+        set
+        {
+            _numOfTries = value;
+            _UIController.SetNumOfTries(_numOfTries);
+        }
+    }
+
+    public int TotalSecondsScore => _time * _secondsScore;
+    public int TotalErrorsScore => _errorCounter * _errorPenalty;
+    public int TotalScore => TotalErrorsScore + TotalSecondsScore + _pairPoints;
+    public int TimeCounter => _time;
+
     private void Awake()
     {
         if (instance == null)
@@ -48,6 +76,7 @@ public class GameController : MonoBehaviour
     private void Start()
     {
         SetCardsSprites();
+        _time = _matchDuration;
     }
 
     private void Update()
@@ -55,8 +84,19 @@ public class GameController : MonoBehaviour
         if(_matchBegun && _timeCounter >= 0f)
         {
             _timeCounter -= Time.deltaTime;
-            _time = Mathf.RoundToInt(_timeCounter);
-            OnTimeChanged?.Invoke(_time);
+            int roundedTime = Mathf.RoundToInt(_timeCounter);
+
+            if(roundedTime != _time) // This will serve to call the event only for each second, not for each frame
+            {
+                _time = roundedTime;
+                OnTimeChanged?.Invoke(_time);
+            }
+
+            if(roundedTime == 0)
+            {
+                print("Time's up!");
+                StartCoroutine(EndGame());
+            }
         }
     }
 
@@ -68,24 +108,44 @@ public class GameController : MonoBehaviour
             if (i > 1 && i % 2 == 0)
                 pairCounter++;
 
-            _cards[i].SetCardImages(_cardBack, _cardsSprites[pairCounter]);
+            if (pairCounter < _cardsSprites.Count)
+                _cards[i].SetCardImages(_cardBack, _cardsSprites[pairCounter]);
+            else
+            {
+                Debug.LogWarning("The number of card sprites doesn't match the number of cards, " +
+                    "this may cause some cards be without any sprite.");
+                break;
+            }
         }
     }
 
     public void StartGame()
     {
         ShuffleCards();
-        StartCoroutine(FlipAllCards());       
+        StartCoroutine(FlipAllCardsIntro());       
     }
 
-    private IEnumerator FlipAllCards()
+    private void ForceFlipAllCards(bool setCanFlip = false)
     {
-        //Flipping...
         foreach (var card in _cards)
         {
             card.ForceFlip();
-            card.SetCanFlip(false);
+            card.SetCanFlip(setCanFlip);
         }
+    }
+
+    private void FlipAllCards()
+    {
+        foreach (var card in _cards)
+        {
+            card.ActivateFlip();
+        }
+    }
+
+    private IEnumerator FlipAllCardsIntro()
+    {
+        //Flipping...
+        ForceFlipAllCards(false);
 
         _UIController.GameHUD.SetActive(false);
 
@@ -95,11 +155,7 @@ public class GameController : MonoBehaviour
         _UIController.GameHUD.SetActive(true);
 
         // ...and unflipping
-        foreach (var card in _cards)
-        {
-            card.SetCanFlip(true);
-            card.ForceFlip();
-        }
+        ForceFlipAllCards(true);
 
         Card.OnCardFlipped += HandleOnCardFlipped;
         _timeCounter = _matchDuration;
@@ -117,18 +173,15 @@ public class GameController : MonoBehaviour
 
     public void HandleOnCardFlipped(Card card)
     {
-        if (card.CardState == CardState.Back || _flippedCards.Count > 2)
+        if (card.CardState == CardState.Back || _flippedCards.Count > 2 || _timeCounter <= 0f)
             return;
 
         _flippedCards.Add(card);        
 
         if(_flippedCards.Count == 2)
         {
-            _numOfTries++;
-            _UIController.SetNumOfTries(_numOfTries);
-
-            bool areEqual = _flippedCards[0].CardImage.sprite.
-                Equals(_flippedCards[1].CardImage.sprite);
+            NumberOfTries++;
+            bool areEqual = _flippedCards[0].CardImage.sprite.Equals(_flippedCards[1].CardImage.sprite);
 
             if(!areEqual)
             {
@@ -137,9 +190,7 @@ public class GameController : MonoBehaviour
             }
             else
             {
-                _score += _matchScore;
-                _UIController.SetScore(_score);
-                _pairCounter++;
+                PairPoints += _matchScore;
                 _flippedCards.ForEach(card =>
                 {
                     card.SetCanFlip(false);
@@ -152,25 +203,18 @@ public class GameController : MonoBehaviour
         }
     }
 
-    private int GetTotalScore()
-    {
-        int totalSecondsScore = _time * _secondsScore;
-        int totalErrorsScore = _errorCounter * _errorPenalty;
-        int total = totalSecondsScore + totalErrorsScore + _score;
-
-        return total;
-    }
-
     public IEnumerator EndGame()
     {
+        FlipAllCards();
         _matchBegun = false;
-        _UIController.SaveRankingData(_UIController.NameInput.text, GetTotalScore());
+        _UIController.SaveRankingData(_UIController.NameInput.text, TotalScore);
         _UIController.GameHUD.SetActive(false);
 
         yield return new WaitForSeconds(_timeToEndGame);
 
         _UIController.InGameUI.SetActive(false);
         _UIController.EndGameUI.SetActive(true);
+        _UIController.UpdateEndGamePontuation(PairPoints, TotalSecondsScore, TotalErrorsScore, TotalScore);
     }
 
     private IEnumerator UnflipPairOfFlippedCards(float timeToWait)
@@ -184,6 +228,11 @@ public class GameController : MonoBehaviour
     }
 
     public void RestartGame()
+    {
+        Card.OnCardFlipped -= HandleOnCardFlipped;
+    }
+
+    private void OnDestroy()
     {
         Card.OnCardFlipped -= HandleOnCardFlipped;
     }
