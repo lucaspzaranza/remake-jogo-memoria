@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Schema;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class GameController : MonoBehaviour
@@ -31,14 +33,16 @@ public class GameController : MonoBehaviour
     [SerializeField] private float _timeToUnflip;
     [SerializeField] private float _timeToEndGame;
 
-    private List<Card> _flippedCards = new List<Card>();
     private bool _matchBegun;
+    private bool _matchRestarted;
     private int _pairCounter;
     private int _errorCounter;
     private int _numOfTries;
     private int _time;
     private float _timeCounter;
 
+    private List<Card> _flippedCards = new List<Card>(); 
+    public int FlippedCardsCount => _flippedCards.Count;
     public int PairPoints
     {
         get => _pairPoints;
@@ -77,6 +81,7 @@ public class GameController : MonoBehaviour
     {
         SetCardsSprites();
         _time = _matchDuration;
+        _matchRestarted = false;
     }
 
     private void Update()
@@ -93,10 +98,7 @@ public class GameController : MonoBehaviour
             }
 
             if(roundedTime == 0)
-            {
-                print("Time's up!");
                 StartCoroutine(EndGame());
-            }
         }
     }
 
@@ -125,10 +127,43 @@ public class GameController : MonoBehaviour
         StartCoroutine(FlipAllCardsIntro());       
     }
 
-    private void ForceFlipAllCards(bool setCanFlip = false)
+    public void RestartMatch()
+    {
+        if(!_matchRestarted)
+        {
+            _time = _matchDuration;
+            _timeCounter = 0f;
+            _matchBegun = false;
+
+            // Reseting the cards which are flipped in game
+            _cards.Where(card => card.CardState == CardState.Flipped)
+                .ToList()
+                .ForEach(card =>
+                {
+                    card.CardImage.sprite = _cardBack;
+                    card.SetCardState(CardState.Back);
+                });
+
+            _pairPoints = 0;
+            _pairCounter = 0;
+            _numOfTries = 0;
+            _errorCounter = 0;
+            _flippedCards = new List<Card>();
+            StartGame();
+            _matchRestarted = true;
+            _UIController.RestartMatchBtn.interactable = false;
+            _UIController.SetNumOfTries(0);
+            _UIController.SetScore(0);
+        }
+    }
+
+    private void ForceFlipAllCards(bool setCanFlip = false, bool flipOnlyBackCards = false)
     {
         foreach (var card in _cards)
         {
+            if(flipOnlyBackCards && card.CardState == CardState.Flipped)
+                continue;
+
             card.ForceFlip();
             card.SetCanFlip(setCanFlip);
         }
@@ -173,15 +208,15 @@ public class GameController : MonoBehaviour
 
     public void HandleOnCardFlipped(Card card)
     {
-        if (card.CardState == CardState.Back || _flippedCards.Count > 2 || _timeCounter <= 0f)
+        if (FlippedCardsCount == 2 || TimeCounter <= 0f) //card.CardState == CardState.Back || removed
             return;
 
         _flippedCards.Add(card);        
-
-        if(_flippedCards.Count == 2)
+        if(FlippedCardsCount == 2)
         {
             NumberOfTries++;
-            bool areEqual = _flippedCards[0].CardImage.sprite.Equals(_flippedCards[1].CardImage.sprite);
+
+            bool areEqual = _flippedCards[0].FlippedSprite.Equals(_flippedCards[1].FlippedSprite);
 
             if(!areEqual)
             {
@@ -205,7 +240,7 @@ public class GameController : MonoBehaviour
 
     public IEnumerator EndGame()
     {
-        FlipAllCards();
+        ForceFlipAllCards(false, true);
         _matchBegun = false;
         _UIController.SaveRankingData(_UIController.NameInput.text, TotalScore);
         _UIController.GameHUD.SetActive(false);
@@ -220,9 +255,13 @@ public class GameController : MonoBehaviour
     private IEnumerator UnflipPairOfFlippedCards(float timeToWait)
     {
         yield return new WaitForSeconds(timeToWait);
-        foreach (var card in _flippedCards)
+
+        if(TimeCounter > 1f)
         {
-            card.ForceFlip();
+            foreach (var card in _flippedCards)
+            {
+                card.ForceFlip();
+            }
         }
         _flippedCards = new List<Card>();
     }

@@ -18,8 +18,8 @@ public class Card : MonoBehaviour
     [SerializeField] private float _flipSpeed;
     [SerializeField] private float _rotationLimit;
     [SerializeField] private float _deadzone;
-    [SerializeField] private Sprite _flippedSprite;
     [SerializeField] private Sprite _backSprite;
+    [SerializeField] private Sprite _flippedSprite;
     [SerializeField] private Button _buttonComp;
 
     private bool _canFlip = true;
@@ -28,6 +28,8 @@ public class Card : MonoBehaviour
 
     [SerializeField] private Image _cardImg;
     public Image CardImage => _cardImg;
+
+    public Sprite FlippedSprite => _flippedSprite;
 
     [SerializeField] private CardState _cardState;
     public CardState CardState => _cardState;
@@ -42,11 +44,16 @@ public class Card : MonoBehaviour
 
         _buttonComp.onClick.AddListener(() =>
         {
-            if (!_canFlip)
+            if (!_canFlip || GameController.instance.FlippedCardsCount == 2)
                 return;
 
             if(!_activateFlip && _cardState == CardState.Back)
+            {
                 _activateFlip = true;
+
+                if (GameController.instance.TimeCounter > 0f)
+                    OnCardFlipped?.Invoke(this);
+            }
         });
 
         _cardState = CardState.Back;
@@ -86,11 +93,7 @@ public class Card : MonoBehaviour
             //print($"The card {_cardState} has stopped its flip on {transform.eulerAngles.y}");
             _changedSide = false;
             _activateFlip = false;
-            transform.rotation = Quaternion.identity;
-
-            // TIME GREATER THAN ZERO
-            if(GameController.instance.TimeCounter > 0f)
-                OnCardFlipped?.Invoke(this);
+            transform.rotation = Quaternion.identity;            
         }
     }
 
@@ -119,5 +122,10 @@ public class Card : MonoBehaviour
     public void SetCanFlip(bool val)
     {
         _canFlip = val;
+    }
+
+    public void SetCardState(CardState newState)
+    {
+        _cardState = newState;
     }
 }

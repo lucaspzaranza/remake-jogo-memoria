@@ -2,6 +2,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class UIController : MonoBehaviour
 {
@@ -31,6 +32,9 @@ public class UIController : MonoBehaviour
 
     [SerializeField] private TextMeshProUGUI _numOfTries;
     public TextMeshProUGUI NumberOfTries => _numOfTries;
+
+    [SerializeField] private Button _restartMatchBtn;
+    public Button RestartMatchBtn => _restartMatchBtn;
 
     [Space]
     [Header("End Game")]

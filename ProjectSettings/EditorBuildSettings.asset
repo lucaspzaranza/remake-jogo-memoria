@@ -8,4 +8,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Scenes/Desktop.unity
     guid: 2cda990e2423bbf4892e6590ba056729
+  - enabled: 0
+    path: Assets/_Scenes/Mobile.unity
+    guid: aced7415e09465b4486985e15f2d7d37
   m_configObjects: {}
